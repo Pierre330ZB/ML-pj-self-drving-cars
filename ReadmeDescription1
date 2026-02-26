@@ -1,0 +1,44 @@
+📝 Proposition de README : Data Engineering & Pre-processing
+🚗 Project: Fail-Safe Autonomous Driving (nuScenes)
+L'objectif de cette partie est de préparer les données pour entraîner un modèle capable de détecter l'incapacité de l'IA (conditions météo extrêmes, nuit, visibilité réduite).
+
+🛠 Installation & Setup
+nuScenes Devkit : Installer le package officiel via pip install nuscenes-devkit.
+
+Dataset : Télécharger les archives (v1.0-trainval) et les placer dans un dossier data/sets/nuscenes.
+
+Structure attendue :
+
+Plaintext
+
+/data
+  /sets
+    /nuscenes
+      /samples  <- (Images, LiDAR, etc.)
+      /v1.0-trainval <- (Métadonnées JSON)
+🎯 Objectifs de la Data (Ce que tu dois extraire)
+On ne veut pas tout ! Pour notre sujet, on a besoin de corréler les données capteurs avec les conditions environnementales.
+
+Extraction des attributs : Récupérer les scene_description pour filtrer les scènes par :
+
+Rain (Pluie)
+
+Night (Nuit)
+
+Snow (Neige - si disponible)
+
+Synchronisation : Aligner les images de la caméra frontale (CAM_FRONT) avec les nuages de points LiDAR.
+
+Target (Label) : Créer un score de "difficulté" ou utiliser les labels de visibilité fournis par nuScenes (visibility tokens).
+
+🧪 Script de test (Snippet rapide)
+Python
+
+from nuscenes.nuscenes import NuScenes
+
+nusc = NuScenes(version='v1.0-trainval', dataroot='/data/sets/nuscenes', verbose=True)
+
+# Exemple : Lister les scènes où il pleut
+for scene in nusc.scene:
+    if 'rain' in scene['description'].lower():
+        print(f"Scène ID: {scene['token']} - {scene['description']}")
