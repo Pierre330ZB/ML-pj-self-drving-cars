@@ -1,0 +1,62 @@
+Documentation des Données : nuPlan & nuScenes
+Ce projet utilise l'écosystème nuPlan de Motional pour prédire l'incapacité de l'IA en conditions réelles (Singapour, Boston, etc.).
+Contenu des Datasets (Sélectionnés)
+D'après notre configuration, nous nous concentrons sur les splits suivants :
+Dataset Split
+Taille
+Contenu & Utilité
+nuPlan Maps
+0.90 GB
+Couches vectorielles (voies, stop, feux). Indispensable pour faire tourner le simulateur.
+nuPlan Mini
+8.25 GB
+72 logs complets. À utiliser pour le développement local et le débuggage du code.
+nuPlan Train (Singapore)
+37.80 GB
+Données d'entraînement massives. Singapour est choisi pour ses scénarios de pluie tropicale et conduite à gauche.
+nuPlan Val
+93.65 GB
+Données de validation pour évaluer la capacité du modèle à "rendre la main" sur des scènes inconnues.
+
+Qu'est-ce qu'il y a dans un fichier .db ?
+Chaque fichier est une base de données SQLite contenant :
+Ego Trajectory : La position, vitesse et accélération du véhicule autonome à chaque instant ($t$).
+Agents : Les boîtes 3D et trajectoires de tous les objets environnants (voitures, piétons, vélos).
+Traffic Lights : L'état des feux de signalisation synchronisé avec la position du véhicule.
+Lidar/Camera Tokens : Des pointeurs vers les données brutes des capteurs (si téléchargées séparément).
+Comment charger et explorer les données
+Le traitement ne se fait pas par lecture SQL directe, mais via le nuplan-devkit.
+1. Installation de l'environnement
+Bash
+git clone https://github.com/motional/nuplan-devkit.git
+cd nuplan-devkit
+pip install -e .
+
+2. Configuration des chemins (Variables d'environnement)
+Il est crucial de dire au code où se trouvent les fichiers téléchargés. Ajoute ceci à ton .bashrc ou au début de ton script Python :
+Python
+import os
+
+os.environ['NUPLAN_DATA_ROOT'] = '/chemin/vers/ton/dossier/data'
+os.environ['NUPLAN_MAPS_ROOT'] = '/chemin/vers/ton/dossier/maps'
+os.environ['NUPLAN_DB_FILES'] = '/chemin/vers/tes/fichiers/db'
+
+3. Script Python d'exploration rapide
+Ce script permet de vérifier que les données sont bien chargées :
+Python
+from nuplan.database.nuplan_db.nuplan_db_utils import get_nuplan_db_files
+from nuplan.database.nuplan_db.nuplan_scenario_queries import get_scenarios_from_db
+
+# Lister les fichiers DB disponibles
+db_files = get_nuplan_db_files(os.environ['NUPLAN_DB_FILES'])
+print(f"Bases de données trouvées : {len(db_files)}")
+
+# Charger les scénarios d'une base spécifique (ex: Singapore)
+# On peut filtrer ici par type de scène (pluie, intersection, etc.)
+scenarios = get_scenarios_from_db(db_files[0])
+print(f"Nombre de scènes chargées : {len(scenarios)}")
+
+Notes importantes pour l'équipe
+Format de stockage : Ne dézippez pas les fichiers .db à l'intérieur du dossier Git. Utilisez un dossier externe et référencez-le via les variables d'environnement.
+Singapour vs USA : Attention, les règles de conduite et la signalétique diffèrent. Notre modèle doit être capable de détecter si un changement d'environnement (ex: passer de Boston à Singapour) crée une incertitude trop élevée.
+
