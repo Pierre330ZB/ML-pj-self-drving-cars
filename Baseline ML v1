@@ -1,0 +1,28 @@
+Création de la Baseline ML
+Mission : Script de Classification "Safe-Handover" (Phase 1)
+1.	Extraction NuScenes/NuPlan : Utilise le nuplan-devkit pour extraire un échantillon (Mini Split) de données.
+2.	Feature Engineering (Variables clés) : Crée un vecteur de caractéristiques comprenant :
+o	visibility (Score de visibilité 0-100%).
+o	precipitation (Intensité de la pluie).
+o	traffic_density (Nombre d'objets détectés dans un rayon de 50m).
+o	lighting_condition (Jour/Nuit).
+3.	Création de la Target (Label) : Si visibility < 40% OU precipitation > 70%, alors Target = 1 (Handover), sinon 0.
+4.	Workflow Machine Learning (Exigence Prof) :
+o	Nettoyage : Gère les valeurs manquantes (imputation par la médiane) et les outliers.
+o	Modèle : Implémente une Régression Logistique simple (c'est notre modèle de référence/Baseline).
+o	Validation : Utilise un train_test_split (80/20) avec une graine fixe (random_state=42) pour la reproductibilité.
+5.	Sortie : Affiche la Matrice de Confusion et le F1-Score.
+Note : Mets ce fichier dans /scripts_python/01_baseline_logistic_regression.py
+Résultats : 
+2026-03-02 23:01:54,893 - INFO - Extraction de l'échantillon de données (simulation nuplan-devkit)...
+2026-03-02 23:01:54,902 - INFO - Création de la variable Target...
+2026-03-02 23:01:54,905 - INFO - Nettoyage des données (Médiane et Outliers)...
+2026-03-02 23:01:54,931 - INFO - Entraînement de la Baseline (Régression Logistique)...
+==================================================
+ RÉSULTATS DE LA BASELINE - RÉGRESSION LOGISTIQUE
+==================================================
+Matrice de Confusion :
+[[74 17]
+ [13 96]]
+F1-Score : 0.8649
+==================================================
